@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Handler;
@@ -103,18 +104,19 @@ public class FloatingModMenuService extends Service {
     }
 
     // ================================================================
-    // MINIMIZED FLOATING BADGE (Icon bong bóng nhỏ khi ẩn)
+    // MINIMIZED FLOATING BADGE (Icon bong bóng Neon nhỏ gọn)
     // ================================================================
     private void createMinimizedBadge() {
         Button badgeBtn = new Button(this);
         badgeBtn.setText("ARK\nMOD");
         badgeBtn.setTextColor(Color.WHITE);
-        badgeBtn.setTextSize(11);
+        badgeBtn.setTextSize(10);
+        badgeBtn.setTypeface(Typeface.DEFAULT_BOLD);
 
         GradientDrawable shape = new GradientDrawable();
         shape.setShape(GradientDrawable.OVAL);
-        shape.setColor(Color.parseColor("#1976D2"));
-        shape.setStroke(4, Color.parseColor("#60A5FA"));
+        shape.setColor(Color.parseColor("#0F172A"));
+        shape.setStroke(4, Color.parseColor("#38BDF8"));
         badgeBtn.setBackground(shape);
 
         int layoutType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
@@ -122,7 +124,7 @@ public class FloatingModMenuService extends Service {
                 : WindowManager.LayoutParams.TYPE_PHONE;
 
         minimizedParams = new WindowManager.LayoutParams(
-                140, 140,
+                130, 130,
                 layoutType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
@@ -160,65 +162,84 @@ public class FloatingModMenuService extends Service {
     }
 
     // ================================================================
-    // EXPANDED MAIN FLOATING OVERLAY WINDOW
+    // EXPANDED MAIN FLOATING OVERLAY WINDOW (Modern Glassmorphism UI)
     // ================================================================
     private void createExpandedMenu() {
         containerLayout = new LinearLayout(this);
         containerLayout.setOrientation(LinearLayout.VERTICAL);
 
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(Color.parseColor("#EA0F172A")); // Deep dark glassmorphism (Translucent)
-        bg.setCornerRadius(24f);
-        bg.setStroke(3, Color.parseColor("#3B82F6"));
+        bg.setColor(Color.parseColor("#F00B0F19")); // Deep slate dark glassmorphism
+        bg.setCornerRadius(20f);
+        bg.setStroke(2, Color.parseColor("#1E293B"));
         containerLayout.setBackground(bg);
-        containerLayout.setPadding(24, 20, 24, 20);
+        containerLayout.setPadding(18, 16, 18, 16);
 
-        // Header Title
+        // Header Title Bar with Status Pill
+        LinearLayout headerBar = new LinearLayout(this);
+        headerBar.setOrientation(LinearLayout.HORIZONTAL);
+        headerBar.setGravity(Gravity.CENTER_VERTICAL);
+        headerBar.setPadding(6, 4, 6, 8);
+
         titleTextView = new TextView(this);
-        titleTextView.setText("ARK Ultimate Online Menu v3.0");
-        titleTextView.setTextColor(Color.parseColor("#60A5FA"));
-        titleTextView.setTextSize(15);
-        titleTextView.setGravity(Gravity.CENTER);
-        titleTextView.setPadding(0, 5, 0, 5);
-        containerLayout.addView(titleTextView);
+        titleTextView.setText("⚡ ARK ULTIMATE MOD");
+        titleTextView.setTextColor(Color.parseColor("#38BDF8"));
+        titleTextView.setTextSize(14);
+        titleTextView.setTypeface(Typeface.DEFAULT_BOLD);
+        titleTextView.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        headerBar.addView(titleTextView);
 
-        // Notice Ticker Banner
+        TextView statusPill = new TextView(this);
+        statusPill.setText("🟢 ONLINE");
+        statusPill.setTextColor(Color.parseColor("#4ADE80"));
+        statusPill.setTextSize(10);
+        statusPill.setTypeface(Typeface.DEFAULT_BOLD);
+        statusPill.setPadding(12, 4, 12, 4);
+        GradientDrawable pillBg = new GradientDrawable();
+        pillBg.setColor(Color.parseColor("#14532D"));
+        pillBg.setCornerRadius(10f);
+        statusPill.setBackground(pillBg);
+        headerBar.addView(statusPill);
+
+        containerLayout.addView(headerBar);
+
+        // Sub Notice Ticker
         noticeTextView = new TextView(this);
-        noticeTextView.setText("⚡ Đang kết nối Server Online...");
-        noticeTextView.setTextColor(Color.parseColor("#FBBF24"));
-        noticeTextView.setTextSize(11);
-        noticeTextView.setGravity(Gravity.CENTER);
-        noticeTextView.setPadding(0, 0, 0, 10);
+        noticeTextView.setText("Cloud Server Connected");
+        noticeTextView.setTextColor(Color.parseColor("#94A3B8"));
+        noticeTextView.setTextSize(10);
+        noticeTextView.setPadding(6, 0, 6, 8);
         containerLayout.addView(noticeTextView);
 
-        // Top Action Bar: Sync Online + Minimize
+        // Compact Top Control Action Buttons
         LinearLayout topBar = new LinearLayout(this);
         topBar.setOrientation(LinearLayout.HORIZONTAL);
 
-        Button btnSync = createStyledButton("🔄 Tải Lại Online", "#059669");
+        Button btnSync = createStyledButton("🔄 Sync Online", "#059669", 11);
         btnSync.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         btnSync.setOnClickListener(v -> fetchOnlineConfig(activeConfigUrl));
         topBar.addView(btnSync);
 
-        Button btnMin = createStyledButton("➖ Thu Nhỏ", "#DC2626");
+        Button btnMin = createStyledButton("➖ Thu Nhỏ", "#E11D48", 11);
         btnMin.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         btnMin.setOnClickListener(v -> toggleMinimize(true));
         topBar.addView(btnMin);
 
         containerLayout.addView(topBar);
 
-        // Category Tabs Bar (Horizontal Scrollable)
+        // Category Tabs Bar (Pill Buttons)
         HorizontalScrollView tabsScrollView = new HorizontalScrollView(this);
-        tabsScrollView.setPadding(0, 10, 0, 10);
+        tabsScrollView.setPadding(0, 6, 0, 6);
+        tabsScrollView.setHorizontalScrollBarEnabled(false);
         tabsLayout = new LinearLayout(this);
         tabsLayout.setOrientation(LinearLayout.HORIZONTAL);
         tabsScrollView.addView(tabsLayout);
         containerLayout.addView(tabsScrollView);
 
-        // Dynamic Items Container (Vertical Scrollable)
+        // Dynamic Items Container (Scrollable)
         ScrollView itemsScrollView = new ScrollView(this);
         LinearLayout.LayoutParams itemsLp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 320
+                LinearLayout.LayoutParams.MATCH_PARENT, 260
         );
         itemsScrollView.setLayoutParams(itemsLp);
         itemsContainerLayout = new LinearLayout(this);
@@ -226,20 +247,26 @@ public class FloatingModMenuService extends Service {
         itemsScrollView.addView(itemsContainerLayout);
         containerLayout.addView(itemsScrollView);
 
-        // Log Console Display Output
+        // Sleek Terminal Console Display Output
         logScrollView = new ScrollView(this);
         LinearLayout.LayoutParams logLp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, 220
+                LinearLayout.LayoutParams.MATCH_PARENT, 180
         );
-        logLp.setMargins(0, 10, 0, 0);
+        logLp.setMargins(0, 8, 0, 0);
         logScrollView.setLayoutParams(logLp);
 
         logTextView = new TextView(this);
-        logTextView.setText("Console Log Output Ready...\nSẵn sàng nạp và chạy file Script từ GitHub!");
-        logTextView.setTextColor(Color.parseColor("#34D399"));
-        logTextView.setTextSize(11);
-        logTextView.setBackgroundColor(Color.parseColor("#0F172A"));
-        logTextView.setPadding(12, 12, 12, 12);
+        logTextView.setText("> System Ready. Sẵn sàng thực thi lệnh!");
+        logTextView.setTextColor(Color.parseColor("#4ADE80"));
+        logTextView.setTextSize(10);
+        logTextView.setTypeface(Typeface.MONOSPACE);
+        
+        GradientDrawable logBg = new GradientDrawable();
+        logBg.setColor(Color.parseColor("#020617"));
+        logBg.setCornerRadius(12f);
+        logBg.setStroke(1, Color.parseColor("#1E293B"));
+        logTextView.setBackground(logBg);
+        logTextView.setPadding(10, 10, 10, 10);
         logScrollView.addView(logTextView);
         containerLayout.addView(logScrollView);
 
@@ -248,17 +275,17 @@ public class FloatingModMenuService extends Service {
                 : WindowManager.LayoutParams.TYPE_PHONE;
 
         expandedParams = new WindowManager.LayoutParams(
-                720, WindowManager.LayoutParams.WRAP_CONTENT,
+                660, WindowManager.LayoutParams.WRAP_CONTENT,
                 layoutType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
 
         expandedParams.gravity = Gravity.TOP | Gravity.LEFT;
-        expandedParams.x = 100;
-        expandedParams.y = 100;
+        expandedParams.x = 80;
+        expandedParams.y = 80;
 
-        // Make Expanded Window Draggable
+        // Draggable Overlay Setup
         containerLayout.setOnTouchListener(new View.OnTouchListener() {
             private int initialX, initialY;
             private float initialTouchX, initialTouchY;
@@ -273,7 +300,6 @@ public class FloatingModMenuService extends Service {
                         initialTouchY = event.getRawY();
                         return true;
                     case MotionEvent.ACTION_MOVE:
-                        params_move:
                         expandedParams.x = initialX + (int) (event.getRawX() - initialTouchX);
                         expandedParams.y = initialY + (int) (event.getRawY() - initialTouchY);
                         windowManager.updateViewLayout(containerLayout, expandedParams);
@@ -310,7 +336,7 @@ public class FloatingModMenuService extends Service {
     // FETCH ONLINE CONFIG FROM SERVER (HTTP JSON)
     // ================================================================
     private void fetchOnlineConfig(String urlStr) {
-        appendLog("[+] Đang tải cấu hình menu từ Server Online...");
+        appendLog("[+] Đang tải cấu hình Online...");
         new Thread(() -> {
             try {
                 URL url = new URL(urlStr);
@@ -334,13 +360,13 @@ public class FloatingModMenuService extends Service {
                     mainHandler.post(() -> renderDynamicMenu(json, true));
                 } else {
                     mainHandler.post(() -> {
-                        appendLog("[-] Server trả về lỗi HTTP: " + code + ". Nạp cấu hình mặc định...");
+                        appendLog("[-] HTTP Error: " + code + ". Nạp cấu hình Offline...");
                         loadFallbackConfig();
                     });
                 }
             } catch (Exception e) {
                 mainHandler.post(() -> {
-                    appendLog("[-] Lỗi kết nối Server: " + e.getMessage() + ". Nạp cấu hình Offline...");
+                    appendLog("[-] Lỗi Server: " + e.getMessage() + ". Nạp cấu hình Offline...");
                     loadFallbackConfig();
                 });
             }
@@ -350,14 +376,19 @@ public class FloatingModMenuService extends Service {
     private void loadFallbackConfig() {
         try {
             String defaultJsonStr = "{\n" +
-                    "  \"menu_title\": \"ARK Ultimate Cloud Menu (Offline)\",\n" +
-                    "  \"announcement\": \"⚠️ Chế độ Offline. Nhấn 'Tải Lại Online' để kết nối Server!\",\n" +
+                    "  \"menu_title\": \"⚡ ARK MOD ENGINE\",\n" +
+                    "  \"announcement\": \"⚠️ Chế độ Offline Connected\",\n" +
                     "  \"categories\": [\n" +
                     "    {\n" +
-                    "      \"cat_name\": \"📍 Dump Zone\",\n" +
+                    "      \"cat_name\": \"🧪 Script GitHub\",\n" +
                     "      \"items\": [\n" +
-                    "        {\"label\": \"Quét Zone Spawn (Native C++)\", \"action_type\": \"native_scan_zones\", \"payload\": \"\"},\n" +
-                    "        {\"label\": \"Quét Chuỗi RAM DinoSpawnEntries_\", \"action_type\": \"root_cmd\", \"payload\": \"PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \\\"$PIDS\\\" ]; then for PID in $PIDS; do echo \\\"[+] Đang quét RAM PID: $PID...\\\"; grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem 2>/dev/null | sort -u; done; else echo '[-] Không tìm thấy PID game!'; fi\"}\n" +
+                    "        {\"label\": \"▶️ Test Zones Script\", \"action_type\": \"run_url_script\", \"payload\": \"https://raw.githubusercontent.com/Huyhub1/Mod-menu-/main/scripts/test_zones.sh\"}\n" +
+                    "      ]\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "      \"cat_name\": \"📍 Spawn Zones\",\n" +
+                    "      \"items\": [\n" +
+                    "        {\"label\": \"Quét Spawn Zones (Native)\", \"action_type\": \"native_scan_zones\", \"payload\": \"\"}\n" +
                     "      ]\n" +
                     "    }\n" +
                     "  ]\n" +
@@ -372,12 +403,12 @@ public class FloatingModMenuService extends Service {
     private void renderDynamicMenu(JSONObject json, boolean isOnline) {
         currentConfigJson = json;
         try {
-            String title = json.optString("menu_title", "ARK Cloud Menu");
-            String notice = json.optString("announcement", "Server Connected!");
+            String title = json.optString("menu_title", "⚡ ARK ULTIMATE MOD");
+            String notice = json.optString("announcement", "Cloud Server Connected");
             titleTextView.setText(title);
             noticeTextView.setText(notice);
 
-            appendLog(isOnline ? "[✔] ĐÃ KẾT NỐI SERVER ONLINE THÀNH CÔNG!" : "[!] Đã nạp cấu hình Offline.");
+            appendLog(isOnline ? "[✔] ĐÃ ĐỒNG BỘ CONFIG ONLINE TỪ GITHUB!" : "[!] Đã nạp cấu hình Offline.");
 
             tabsLayout.removeAllViews();
             itemsContainerLayout.removeAllViews();
@@ -389,7 +420,7 @@ public class FloatingModMenuService extends Service {
                     String catName = cat.optString("cat_name", "Tab " + (i + 1));
                     final int catIndex = i;
 
-                    Button tabBtn = createStyledButton(catName, i == 0 ? "#2563EB" : "#374151");
+                    Button tabBtn = createTabPillButton(catName, i == 0);
                     tabBtn.setOnClickListener(v -> selectCategoryTab(catIndex));
                     tabsLayout.addView(tabBtn);
                 }
@@ -397,7 +428,7 @@ public class FloatingModMenuService extends Service {
             }
 
         } catch (Exception e) {
-            appendLog("[-] Lỗi render menu UI: " + e.getMessage());
+            appendLog("[-] Lỗi render UI: " + e.getMessage());
         }
     }
 
@@ -407,7 +438,18 @@ public class FloatingModMenuService extends Service {
             for (int i = 0; i < tabsLayout.getChildCount(); i++) {
                 View child = tabsLayout.getChildAt(i);
                 if (child instanceof Button) {
-                    child.setBackgroundColor(Color.parseColor(i == index ? "#2563EB" : "#374151"));
+                    Button b = (Button) child;
+                    GradientDrawable shape = new GradientDrawable();
+                    if (i == index) {
+                        shape.setColor(Color.parseColor("#2563EB"));
+                        shape.setCornerRadius(16f);
+                        b.setTextColor(Color.WHITE);
+                    } else {
+                        shape.setColor(Color.parseColor("#1E293B"));
+                        shape.setCornerRadius(16f);
+                        b.setTextColor(Color.parseColor("#94A3B8"));
+                    }
+                    b.setBackground(shape);
                 }
             }
 
@@ -426,25 +468,32 @@ public class FloatingModMenuService extends Service {
                         String actionType = item.optString("action_type", "root_cmd");
 
                         if (type.equals("button")) {
-                            Button itemBtn = createStyledButton(label, "#1D4ED8");
+                            Button itemBtn = createStyledButton(label, "#1D4ED8", 11);
                             itemBtn.setOnClickListener(v -> executeMenuAction(actionType, payload, ""));
                             itemsContainerLayout.addView(itemBtn);
 
                         } else if (type.equals("input_button")) {
                             LinearLayout inputRow = new LinearLayout(this);
                             inputRow.setOrientation(LinearLayout.HORIZONTAL);
+                            inputRow.setPadding(0, 4, 0, 4);
 
                             EditText input = new EditText(this);
                             input.setHint(label);
                             input.setText(item.optString("default_val", ""));
                             input.setTextColor(Color.WHITE);
                             input.setHintTextColor(Color.GRAY);
-                            input.setBackgroundColor(Color.parseColor("#1E293B"));
-                            input.setPadding(10, 10, 10, 10);
+                            input.setTextSize(11);
+                            
+                            GradientDrawable inputBg = new GradientDrawable();
+                            inputBg.setColor(Color.parseColor("#0F172A"));
+                            inputBg.setCornerRadius(10f);
+                            inputBg.setStroke(1, Color.parseColor("#334155"));
+                            input.setBackground(inputBg);
+                            input.setPadding(14, 10, 14, 10);
                             input.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f));
                             inputRow.addView(input);
 
-                            Button actionBtn = createStyledButton(item.optString("btn_label", "Gửi"), "#059669");
+                            Button actionBtn = createStyledButton(item.optString("btn_label", "Gửi"), "#059669", 11);
                             actionBtn.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
                             actionBtn.setOnClickListener(v -> executeMenuAction(actionType, payload, input.getText().toString()));
                             inputRow.addView(actionBtn);
@@ -452,12 +501,12 @@ public class FloatingModMenuService extends Service {
                             itemsContainerLayout.addView(inputRow);
 
                         } else if (type.equals("toggle")) {
-                            Button toggleBtn = createStyledButton("[OFF] " + label, "#475569");
+                            Button toggleBtn = createStyledButton("[OFF] " + label, "#334155", 11);
                             final boolean[] state = {false};
                             toggleBtn.setOnClickListener(v -> {
                                 state[0] = !state[0];
                                 toggleBtn.setText((state[0] ? "[ON] " : "[OFF] ") + label);
-                                toggleBtn.setBackgroundColor(Color.parseColor(state[0] ? "#16A34A" : "#475569"));
+                                toggleBtn.setBackgroundColor(Color.parseColor(state[0] ? "#16A34A" : "#334155"));
                                 String cmd = state[0] ? item.optString("on_cmd", "") : item.optString("off_cmd", "");
                                 executeMenuAction("root_cmd", cmd, "");
                             });
@@ -476,7 +525,7 @@ public class FloatingModMenuService extends Service {
     // EXECUTION ENGINE FOR ROOT SHELL / SCRIPT URL / NATIVE COMMANDS
     // ================================================================
     private void executeMenuAction(String actionType, String payload, String inputVal) {
-        appendLog("[⚡] Thực thi: " + actionType + " | Input: " + inputVal);
+        appendLog("[⚡] Run: " + actionType + " | " + inputVal);
 
         new Thread(() -> {
             try {
@@ -486,7 +535,7 @@ public class FloatingModMenuService extends Service {
                         mainHandler.post(() -> appendLog(nativeRes));
                         return;
                     } catch (Throwable t) {
-                        appendLog("[-] Lỗi Native: " + t.getMessage() + ". Đang chuyển sang Root Shell...");
+                        appendLog("[-] Lỗi Native: " + t.getMessage());
                     }
                 } else if (actionType.equals("native_teleport_z")) {
                     try {
@@ -538,7 +587,7 @@ public class FloatingModMenuService extends Service {
                     if (!result.isEmpty()) {
                         appendLog(result);
                     } else {
-                        appendLog("[✔] Lệnh đã thực thi thành công.");
+                        appendLog("[✔] Lệnh đã thực thi xong.");
                     }
                 });
 
@@ -552,28 +601,57 @@ public class FloatingModMenuService extends Service {
         if (logTextView != null) {
             String current = logTextView.getText().toString();
             String updated = text + "\n---\n" + current;
-            if (updated.length() > 4000) updated = updated.substring(0, 4000);
+            if (updated.length() > 3500) updated = updated.substring(0, 3500);
             logTextView.setText(updated);
             logScrollView.post(() -> logScrollView.fullScroll(ScrollView.FOCUS_UP));
         }
     }
 
-    private Button createStyledButton(String text, String colorHex) {
+    private Button createTabPillButton(String text, boolean isActive) {
+        Button btn = new Button(this);
+        btn.setText(text);
+        btn.setTextSize(11);
+        btn.setTypeface(Typeface.DEFAULT_BOLD);
+
+        GradientDrawable shape = new GradientDrawable();
+        if (isActive) {
+            shape.setColor(Color.parseColor("#2563EB"));
+            btn.setTextColor(Color.WHITE);
+        } else {
+            shape.setColor(Color.parseColor("#1E293B"));
+            btn.setTextColor(Color.parseColor("#94A3B8"));
+        }
+        shape.setCornerRadius(16f);
+        btn.setBackground(shape);
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        lp.setMargins(4, 2, 4, 2);
+        btn.setPadding(20, 10, 20, 10);
+        btn.setLayoutParams(lp);
+        return btn;
+    }
+
+    private Button createStyledButton(String text, String colorHex, int textSizeDp) {
         Button btn = new Button(this);
         btn.setText(text);
         btn.setTextColor(Color.WHITE);
-        btn.setTextSize(12);
+        btn.setTextSize(textSizeDp);
+        btn.setTypeface(Typeface.DEFAULT_BOLD);
 
         GradientDrawable shape = new GradientDrawable();
         shape.setColor(Color.parseColor(colorHex));
-        shape.setCornerRadius(14f);
+        shape.setCornerRadius(12f);
         btn.setBackground(shape);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
         );
-        lp.setMargins(4, 6, 4, 6);
+        lp.setMargins(4, 4, 4, 4);
+        btn.setPadding(10, 8, 10, 8);
         btn.setLayoutParams(lp);
         return btn;
     }
