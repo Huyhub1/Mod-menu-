@@ -1,0 +1,1 @@
+C:\ark\ModMenuApp\src\main\jni\CMakeLists.txt

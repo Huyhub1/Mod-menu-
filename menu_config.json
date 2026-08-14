@@ -20,14 +20,14 @@
           "type": "button",
           "label": "Quét Chuỗi RAM DinoSpawnEntries_",
           "action_type": "root_cmd",
-          "payload": "PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard || pgrep -f studiowildcard); if [ -n \"$PID\" ]; then echo \"[+] Đang quét RAM PID: $PID...\"; grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem | sort -u 2>&1; else echo '[-] Không tìm thấy PID game ARK Mobile!'; fi"
+          "payload": "PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \"$PIDS\" ]; then for PID in $PIDS; do echo \"[+] Đang quét RAM PID: $PID...\"; grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem 2>/dev/null | sort -u; done; else echo '[-] Không tìm thấy PID game ARK Mobile!'; fi"
         },
         {
           "id": "btn_beach_zones",
           "type": "button",
           "label": "Lọc Riêng Khu Vực Bờ Biển (Beach)",
           "action_type": "root_cmd",
-          "payload": "PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard || pgrep -f studiowildcard); if [ -n \"$PID\" ]; then grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem | grep -i Beach | sort -u 2>&1; else echo '[-] Không tìm thấy PID game ARK Mobile!'; fi"
+          "payload": "PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \"$PIDS\" ]; then for PID in $PIDS; do grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem 2>/dev/null | grep -i Beach | sort -u; done; else echo '[-] Không tìm thấy PID game ARK Mobile!'; fi"
         }
       ]
     },
@@ -40,14 +40,14 @@
           "type": "button",
           "label": "Soi Dino Đang Nhắm (APrimalDinoCharacter)",
           "action_type": "root_cmd",
-          "payload": "PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard || pgrep -f studiowildcard); if [ -n \"$PID\" ]; then grep -a -o 'APrimalDinoCharacter_[A-Za-z0-9_]*' /proc/$PID/mem | head -n 15 2>&1; else echo '[-] Không tìm thấy PID game ARK Mobile!'; fi"
+          "payload": "PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \"$PIDS\" ]; then for PID in $PIDS; do grep -a -o 'APrimalDinoCharacter_[A-Za-z0-9_]*' /proc/$PID/mem 2>/dev/null | head -n 15; done; else echo '[-] Không tìm thấy PID game ARK Mobile!'; fi"
         },
         {
           "id": "btn_all_creatures",
           "type": "button",
           "label": "Quét Tất Cả Creatures Trong Vùng",
           "action_type": "root_cmd",
-          "payload": "PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard || pgrep -f studiowildcard); if [ -n \"$PID\" ]; then grep -a -o 'Dino_Character_BP_[A-Za-z0-9_]*' /proc/$PID/mem | sort -u | head -n 20 2>&1; else echo '[-] Không tìm thấy PID game ARK Mobile!'; fi"
+          "payload": "PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \"$PIDS\" ]; then for PID in $PIDS; do grep -a -o 'Dino_Character_BP_[A-Za-z0-9_]*' /proc/$PID/mem 2>/dev/null | sort -u | head -n 20; done; else echo '[-] Không tìm thấy PID game ARK Mobile!'; fi"
         }
       ]
     },
@@ -67,7 +67,7 @@
           "id": "toggle_god",
           "type": "toggle",
           "label": "Chế Độ God Mode (Test Patch)",
-          "on_cmd": "PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); echo \"[ONLINE SERVER] God Mode: ACTIVATED (PID: $PID)\"",
+          "on_cmd": "PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark); echo \"[ONLINE SERVER] God Mode: ACTIVATED (PIDs: $PIDS)\"",
           "off_cmd": "echo '[ONLINE SERVER] God Mode: DEACTIVATED'"
         }
       ]

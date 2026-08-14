@@ -1,0 +1,3 @@
+C:/ark/ModMenuApp/.cxx/Debug/146o5q5i/armeabi-v7a/CMakeFiles/imguimod.dir
+C:/ark/ModMenuApp/.cxx/Debug/146o5q5i/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/ark/ModMenuApp/.cxx/Debug/146o5q5i/armeabi-v7a/CMakeFiles/rebuild_cache.dir

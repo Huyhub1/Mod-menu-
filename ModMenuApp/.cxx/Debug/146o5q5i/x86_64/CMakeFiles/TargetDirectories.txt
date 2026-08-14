@@ -1,0 +1,3 @@
+C:/ark/ModMenuApp/.cxx/Debug/146o5q5i/x86_64/CMakeFiles/imguimod.dir
+C:/ark/ModMenuApp/.cxx/Debug/146o5q5i/x86_64/CMakeFiles/edit_cache.dir
+C:/ark/ModMenuApp/.cxx/Debug/146o5q5i/x86_64/CMakeFiles/rebuild_cache.dir

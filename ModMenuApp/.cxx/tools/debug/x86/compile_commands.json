@@ -1,0 +1,7 @@
+[
+{
+  "directory": "C:/ark/ModMenuApp/.cxx/Debug/146o5q5i/x86",
+  "command": "C:\\Users\\huyph\\AppData\\Local\\Android\\Sdk\\ndk\\26.1.10909125\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=i686-none-linux-android21 --sysroot=C:/Users/huyph/AppData/Local/Android/Sdk/ndk/26.1.10909125/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Dimguimod_EXPORTS -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++14 -fno-limit-debug-info  -fPIC -o CMakeFiles\\imguimod.dir\\main.cpp.o -c C:\\ark\\ModMenuApp\\src\\main\\jni\\main.cpp",
+  "file": "C:\\ark\\ModMenuApp\\src\\main\\jni\\main.cpp"
+}
+]
