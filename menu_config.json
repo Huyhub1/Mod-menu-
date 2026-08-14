@@ -1,7 +1,7 @@
 {
   "version": "3.0.0",
-  "menu_title": "ARK Ultimate Online Cloud Menu",
-  "announcement": "⚡ Server Status: ONLINE | Auto-Updated 2026 | Discord: ARKGoGs",
+  "menu_title": "ARK Ultimate ImGui Cloud Menu",
+  "announcement": "⚡ Dear ImGui Native Engine v3.0 | Server Connected | Discord: ARKGoGs",
   "theme_color": "#1976D2",
   "categories": [
     {
@@ -9,11 +9,11 @@
       "cat_name": "📍 Spawn Zones",
       "items": [
         {
-          "id": "btn_dump_zones",
+          "id": "btn_imgui_zones",
           "type": "button",
-          "label": "Dump Tất Cả Spawn Zones (Native C++)",
-          "action_type": "root_cmd",
-          "payload": "if [ -f /data/local/tmp/modmenu ]; then chmod 755 /data/local/tmp/modmenu; /data/local/tmp/modmenu 2>&1; else PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard || pgrep -f studiowildcard); if [ -n \"$PID\" ]; then grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem | sort -u 2>&1; else echo '[-] Không tìm thấy tiến trình game ARK Mobile!'; fi; fi"
+          "label": "Quét Zone Spawn (Dear ImGui Native C++)",
+          "action_type": "native_scan_zones",
+          "payload": ""
         },
         {
           "id": "btn_grep_zones",
@@ -58,10 +58,10 @@
         {
           "id": "input_tp_z",
           "type": "input_button",
-          "label": "Teleport Z (Bay Lên Cao)",
+          "label": "Teleport Z (Bay Lên Cao ImGui Native)",
           "default_val": "2000",
           "btn_label": "Thực Thi TP Z",
-          "action_type": "teleport_z"
+          "action_type": "native_teleport_z"
         },
         {
           "id": "toggle_god",
@@ -87,9 +87,9 @@
         {
           "id": "btn_export_log",
           "type": "button",
-          "label": "Xuất Log Ra /sdcard/ARK_Online_Log.txt",
+          "label": "Xuất Log Ra /sdcard/ARK_ImGui_Log.txt",
           "action_type": "root_cmd",
-          "payload": "echo 'ARK Cloud Mod Menu Log Saved' > /sdcard/ARK_Online_Log.txt && echo 'Đã lưu log thành công!'"
+          "payload": "echo 'ARK ImGui Mod Menu Log Saved' > /sdcard/ARK_ImGui_Log.txt && echo 'Đã lưu log thành công!'"
         }
       ]
     }
