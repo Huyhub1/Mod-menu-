@@ -34,9 +34,9 @@
 20-->C:\ark\ModMenuApp\AndroidManifest.xml:14:9-35
 21        android:debuggable="true"
 22        android:extractNativeLibs="true"
-23        android:icon="@mipmap/ic_launcher"
-23-->C:\ark\ModMenuApp\AndroidManifest.xml:15:9-43
-24        android:label="GoGs Ultimate GSV 2.2"
+23        android:icon="@android:drawable/sym_def_app_icon"
+23-->C:\ark\ModMenuApp\AndroidManifest.xml:15:9-58
+24        android:label="ARK Ultimate Mod Menu"
 24-->C:\ark\ModMenuApp\AndroidManifest.xml:16:9-46
 25        android:theme="@android:style/Theme.DeviceDefault.NoActionBar" >
 25-->C:\ark\ModMenuApp\AndroidManifest.xml:17:9-71

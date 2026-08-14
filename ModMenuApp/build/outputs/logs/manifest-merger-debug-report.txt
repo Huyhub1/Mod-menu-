@@ -45,7 +45,7 @@ INJECTED from C:\ark\ModMenuApp\AndroidManifest.xml:13:5-34:19
 	android:label
 		ADDED from C:\ark\ModMenuApp\AndroidManifest.xml:16:9-46
 	android:icon
-		ADDED from C:\ark\ModMenuApp\AndroidManifest.xml:15:9-43
+		ADDED from C:\ark\ModMenuApp\AndroidManifest.xml:15:9-58
 	android:allowBackup
 		ADDED from C:\ark\ModMenuApp\AndroidManifest.xml:14:9-35
 	android:theme

@@ -326,14 +326,14 @@ public class FloatingModMenuService extends Service {
                     "    {\n" +
                     "      \"cat_name\": \"📍 Dump Zone\",\n" +
                     "      \"items\": [\n" +
-                    "        {\"label\": \"Quét Zone Spawn (Native)\", \"action_type\": \"root_cmd\", \"payload\": \"/data/local/tmp/modmenu 1\"},\n" +
-                    "        {\"label\": \"Quét Chuỗi RAM DinoSpawnEntries_\", \"action_type\": \"root_cmd\", \"payload\": \"grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$(pgrep -f ark || pgrep -f wildcard)/mem | sort -u\"}\n" +
+                    "        {\"label\": \"Quét Zone Spawn (Native)\", \"action_type\": \"root_cmd\", \"payload\": \"PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \\\"$PID\\\" ]; then grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem | sort -u 2>&1; else echo '[-] Chưa tìm thấy PID game!'; fi\"},\n" +
+                    "        {\"label\": \"Quét Chuỗi RAM DinoSpawnEntries_\", \"action_type\": \"root_cmd\", \"payload\": \"PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \\\"$PID\\\" ]; then grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem | sort -u 2>&1; else echo '[-] Chưa tìm thấy PID game!'; fi\"}\n" +
                     "      ]\n" +
                     "    },\n" +
                     "    {\n" +
                     "      \"cat_name\": \"🎯 Aim & Target\",\n" +
                     "      \"items\": [\n" +
-                    "        {\"label\": \"Quét APrimalDinoCharacter\", \"action_type\": \"root_cmd\", \"payload\": \"grep -a -o 'APrimalDinoCharacter_[A-Za-z0-9_]*' /proc/$(pgrep -f ark || pgrep -f wildcard)/mem | head -n 10\"}\n" +
+                    "        {\"label\": \"Quét APrimalDinoCharacter\", \"action_type\": \"root_cmd\", \"payload\": \"PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \\\"$PID\\\" ]; then grep -a -o 'APrimalDinoCharacter_[A-Za-z0-9_]*' /proc/$PID/mem | head -n 15 2>&1; else echo '[-] Chưa tìm thấy PID game!'; fi\"}\n" +
                     "      ]\n" +
                     "    }\n" +
                     "  ]\n" +
@@ -471,7 +471,8 @@ public class FloatingModMenuService extends Service {
 
                 Process process = Runtime.getRuntime().exec("su");
                 DataOutputStream os = new DataOutputStream(process.getOutputStream());
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                BufferedReader stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
                 os.writeBytes(cmdToRun + "\n");
                 os.writeBytes("exit\n");
@@ -479,8 +480,11 @@ public class FloatingModMenuService extends Service {
 
                 StringBuilder output = new StringBuilder();
                 String line;
-                while ((line = reader.readLine()) != null) {
+                while ((line = stdoutReader.readLine()) != null) {
                     output.append(line).append("\n");
+                }
+                while ((line = stderrReader.readLine()) != null) {
+                    output.append("[STDERR] ").append(line).append("\n");
                 }
                 process.waitFor();
 
