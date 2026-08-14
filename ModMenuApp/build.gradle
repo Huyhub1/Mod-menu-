@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.2'
+        classpath 'com.android.tools.build:gradle:8.4.0'
     }
 }
 
@@ -18,12 +18,12 @@ allprojects {
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.gogs.ultimatedumper"
         minSdk 21
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName "3.0"
     }
