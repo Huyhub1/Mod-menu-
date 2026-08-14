@@ -1,0 +1,4 @@
+com.gogs.ultimatedumper.test-androidTest-0 C:\ark\ModMenuApp\build\generated\res\resValues\androidTest\debug
+com.gogs.ultimatedumper.test-mergeDebugAndroidTestResources-1 C:\ark\ModMenuApp\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.gogs.ultimatedumper.test-mergeDebugAndroidTestResources-2 C:\ark\ModMenuApp\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.gogs.ultimatedumper.test-debugAndroidTest-3 C:\ark\ModMenuApp\build\intermediates\merged_res\debugAndroidTest\mergeDebugAndroidTestResources

@@ -12,8 +12,8 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="GoGs Ultimate GSV 2.2"
+        android:icon="@android:drawable/sym_def_app_icon"
+        android:label="ARK Ultimate Mod Menu"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
 
         <!-- Main Launcher Activity -->
