@@ -1,0 +1,97 @@
+{
+  "version": "3.0.0",
+  "menu_title": "ARK Ultimate Online Cloud Menu",
+  "announcement": "⚡ Server Status: ONLINE | Auto-Updated 2026 | Discord: ARKGoGs",
+  "theme_color": "#1976D2",
+  "categories": [
+    {
+      "cat_id": "zones",
+      "cat_name": "📍 Spawn Zones",
+      "items": [
+        {
+          "id": "btn_dump_zones",
+          "type": "button",
+          "label": "Dump Tất Cả Spawn Zones (Native C++)",
+          "action_type": "root_cmd",
+          "payload": "/data/local/tmp/modmenu 1"
+        },
+        {
+          "id": "btn_grep_zones",
+          "type": "button",
+          "label": "Quét Chuỗi RAM DinoSpawnEntries_",
+          "action_type": "root_cmd",
+          "payload": "grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$(pgrep -f ark || pgrep -f wildcard)/mem | sort -u"
+        },
+        {
+          "id": "btn_beach_zones",
+          "type": "button",
+          "label": "Lọc Riêng Khu Vực Bờ Biển (Beach)",
+          "action_type": "root_cmd",
+          "payload": "grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$(pgrep -f ark || pgrep -f wildcard)/mem | grep -i Beach | sort -u"
+        }
+      ]
+    },
+    {
+      "cat_id": "creatures",
+      "cat_name": "🎯 Aim & Creatures",
+      "items": [
+        {
+          "id": "btn_aim_target",
+          "type": "button",
+          "label": "Soi Dino Đang Nhắm (APrimalDinoCharacter)",
+          "action_type": "root_cmd",
+          "payload": "grep -a -o 'APrimalDinoCharacter_[A-Za-z0-9_]*' /proc/$(pgrep -f ark || pgrep -f wildcard)/mem | head -n 15"
+        },
+        {
+          "id": "btn_all_creatures",
+          "type": "button",
+          "label": "Quét Tất Cả Creatures Trong Vùng",
+          "action_type": "root_cmd",
+          "payload": "grep -a -o 'Dino_Character_BP_[A-Za-z0-9_]*' /proc/$(pgrep -f ark || pgrep -f wildcard)/mem | sort -u | head -n 20"
+        }
+      ]
+    },
+    {
+      "cat_id": "teleport",
+      "cat_name": "⚡ Teleport & RAM",
+      "items": [
+        {
+          "id": "input_tp_z",
+          "type": "input_button",
+          "label": "Teleport Z (Bay Lên Cao)",
+          "default_val": "2000",
+          "btn_label": "Thực Thi TP Z",
+          "action_type": "teleport_z"
+        },
+        {
+          "id": "toggle_god",
+          "type": "toggle",
+          "label": "Chế Độ God Mode (Test Patch)",
+          "on_cmd": "echo '[ONLINE SERVER] God Mode: ACTIVATED'",
+          "off_cmd": "echo '[ONLINE SERVER] God Mode: DEACTIVATED'"
+        }
+      ]
+    },
+    {
+      "cat_id": "custom",
+      "cat_name": "🔧 Lệnh Tùy Chỉnh",
+      "items": [
+        {
+          "id": "input_custom_cmd",
+          "type": "input_button",
+          "label": "Chạy Shell Root Tùy Chỉnh",
+          "default_val": "pgrep -f ark",
+          "btn_label": "Gửi Lệnh",
+          "action_type": "root_cmd_input"
+        },
+        {
+          "id": "btn_export_log",
+          "type": "button",
+          "label": "Xuất Log Ra /sdcard/ARK_Online_Log.txt",
+          "action_type": "root_cmd",
+          "payload": "echo 'ARK Cloud Mod Menu Log Saved' > /sdcard/ARK_Online_Log.txt && echo 'Đã lưu log thành công!'"
+        }
+      ]
+    }
+  ]
+}

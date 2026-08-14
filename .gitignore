@@ -1,0 +1,4 @@
+# Ignore banggia directory
+banggia/
+.env*
+*.log
