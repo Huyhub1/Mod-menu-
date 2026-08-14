@@ -1,9 +1,37 @@
 {
-  "version": "3.0.0",
+  "version": "3.1.0",
   "menu_title": "ARK Ultimate ImGui Cloud Menu",
-  "announcement": "⚡ Dear ImGui Native Engine v3.0 | Server Connected | Discord: ARKGoGs",
+  "announcement": "⚡ Dear ImGui Native Engine v3.1 | Test Script Loader Active!",
   "theme_color": "#1976D2",
   "categories": [
+    {
+      "cat_id": "test_scripts",
+      "cat_name": "🧪 Test Script GitHub",
+      "items": [
+        {
+          "id": "btn_script_zones",
+          "type": "button",
+          "label": "▶️ Test 1: Quét Spawn Zones (test_zones.sh)",
+          "action_type": "run_url_script",
+          "payload": "https://raw.githubusercontent.com/Huyhub1/Mod-menu-/main/scripts/test_zones.sh"
+        },
+        {
+          "id": "btn_script_creatures",
+          "type": "button",
+          "label": "▶️ Test 2: Soi Dino Đang Nhắm (test_creatures.sh)",
+          "action_type": "run_url_script",
+          "payload": "https://raw.githubusercontent.com/Huyhub1/Mod-menu-/main/scripts/test_creatures.sh"
+        },
+        {
+          "id": "input_custom_script_url",
+          "type": "input_button",
+          "label": "Nhập URL File Script GitHub Cần Test",
+          "default_val": "https://raw.githubusercontent.com/Huyhub1/Mod-menu-/main/scripts/test_zones.sh",
+          "btn_label": "📥 Tải & Chạy Script",
+          "action_type": "run_url_script"
+        }
+      ]
+    },
     {
       "cat_id": "zones",
       "cat_name": "📍 Spawn Zones",
@@ -69,27 +97,6 @@
           "label": "Chế Độ God Mode (Test Patch)",
           "on_cmd": "PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark); echo \"[ONLINE SERVER] God Mode: ACTIVATED (PIDs: $PIDS)\"",
           "off_cmd": "echo '[ONLINE SERVER] God Mode: DEACTIVATED'"
-        }
-      ]
-    },
-    {
-      "cat_id": "custom",
-      "cat_name": "🔧 Lệnh Tùy Chỉnh",
-      "items": [
-        {
-          "id": "input_custom_cmd",
-          "type": "input_button",
-          "label": "Chạy Shell Root Tùy Chỉnh",
-          "default_val": "pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark",
-          "btn_label": "Gửi Lệnh",
-          "action_type": "root_cmd_input"
-        },
-        {
-          "id": "btn_export_log",
-          "type": "button",
-          "label": "Xuất Log Ra /sdcard/ARK_ImGui_Log.txt",
-          "action_type": "root_cmd",
-          "payload": "echo 'ARK ImGui Mod Menu Log Saved' > /sdcard/ARK_ImGui_Log.txt && echo 'Đã lưu log thành công!'"
         }
       ]
     }

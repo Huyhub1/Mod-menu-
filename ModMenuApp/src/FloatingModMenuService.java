@@ -235,7 +235,7 @@ public class FloatingModMenuService extends Service {
         logScrollView.setLayoutParams(logLp);
 
         logTextView = new TextView(this);
-        logTextView.setText("Console Log Output Ready...\nSẵn sàng thực thi lệnh từ Server Online!");
+        logTextView.setText("Console Log Output Ready...\nSẵn sàng nạp và chạy file Script từ GitHub!");
         logTextView.setTextColor(Color.parseColor("#34D399"));
         logTextView.setTextSize(11);
         logTextView.setBackgroundColor(Color.parseColor("#0F172A"));
@@ -273,6 +273,7 @@ public class FloatingModMenuService extends Service {
                         initialTouchY = event.getRawY();
                         return true;
                     case MotionEvent.ACTION_MOVE:
+                        params_move:
                         expandedParams.x = initialX + (int) (event.getRawX() - initialTouchX);
                         expandedParams.y = initialY + (int) (event.getRawY() - initialTouchY);
                         windowManager.updateViewLayout(containerLayout, expandedParams);
@@ -357,12 +358,6 @@ public class FloatingModMenuService extends Service {
                     "      \"items\": [\n" +
                     "        {\"label\": \"Quét Zone Spawn (Native C++)\", \"action_type\": \"native_scan_zones\", \"payload\": \"\"},\n" +
                     "        {\"label\": \"Quét Chuỗi RAM DinoSpawnEntries_\", \"action_type\": \"root_cmd\", \"payload\": \"PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \\\"$PIDS\\\" ]; then for PID in $PIDS; do echo \\\"[+] Đang quét RAM PID: $PID...\\\"; grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem 2>/dev/null | sort -u; done; else echo '[-] Không tìm thấy PID game!'; fi\"}\n" +
-                    "      ]\n" +
-                    "    },\n" +
-                    "    {\n" +
-                    "      \"cat_name\": \"🎯 Aim & Target\",\n" +
-                    "      \"items\": [\n" +
-                    "        {\"label\": \"Quét APrimalDinoCharacter\", \"action_type\": \"root_cmd\", \"payload\": \"PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \\\"$PIDS\\\" ]; then for PID in $PIDS; do grep -a -o 'APrimalDinoCharacter_[A-Za-z0-9_]*' /proc/$PID/mem 2>/dev/null | head -n 15; done; else echo '[-] Không tìm thấy PID game!'; fi\"}\n" +
                     "      ]\n" +
                     "    }\n" +
                     "  ]\n" +
@@ -478,7 +473,7 @@ public class FloatingModMenuService extends Service {
     }
 
     // ================================================================
-    // EXECUTION ENGINE FOR ROOT SHELL / NATIVE C++ IMGUI COMMANDS
+    // EXECUTION ENGINE FOR ROOT SHELL / SCRIPT URL / NATIVE COMMANDS
     // ================================================================
     private void executeMenuAction(String actionType, String payload, String inputVal) {
         appendLog("[⚡] Thực thi: " + actionType + " | Input: " + inputVal);
@@ -505,7 +500,10 @@ public class FloatingModMenuService extends Service {
                 }
 
                 String cmdToRun = payload;
-                if (actionType.equals("root_cmd_input")) {
+                if (actionType.equals("run_url_script")) {
+                    String scriptUrl = inputVal.isEmpty() ? payload : inputVal;
+                    cmdToRun = "echo '[📥] Đang nạp Script từ GitHub: " + scriptUrl + "' && curl -s -m 8 '" + scriptUrl + "' | sh 2>&1";
+                } else if (actionType.equals("root_cmd_input")) {
                     cmdToRun = inputVal;
                 } else if (actionType.equals("teleport_z")) {
                     cmdToRun = "PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark); echo \"[TELEPORT Z] Ghi Z = " + inputVal + " vào RAM (PIDs: $PIDS)\"";
