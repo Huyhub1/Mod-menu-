@@ -18,6 +18,7 @@ allprojects {
 apply plugin: 'com.android.application'
 
 android {
+    namespace 'com.gogs.ultimatedumper'
     compileSdk 34
 
     defaultConfig {
