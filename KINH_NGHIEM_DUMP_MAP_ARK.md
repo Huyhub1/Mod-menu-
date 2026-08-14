@@ -56,30 +56,28 @@ for z in sorted(found): print("  >>> " + z)
 
 ---
 
-### 2. Dùng Native C++ Biên Dịch Trong Termux (`mod_menu_native.cpp`) — **v3.0 NATIVE ENGINE**
+### 2. Dùng Dear ImGui Native C++ Trong Termux (`mod_menu_imgui.cpp`) — **v3.0 IMGUI NATIVE**
 
-- **File nguồn**: [mod_menu_native.cpp](file:///c:/ark/mod_menu_native.cpp)
-- **Ưu điểm**: Đọc/Ghi RAM với tốc độ miligiây (ms), giao diện Menu Terminal tương tác ANSI màu sắc, không cần cài GameGuardian.
-- **Tính năng v3.0 (8 chức năng CLI Menu)**:
-  1. `[1] Dump Spawn Zones`: Quét `DinoSpawnEntries_...` trong RAM, lọc trùng tên và xem RAM address.
-  2. `[2] Realtime Watcher`: Tự động theo dõi vùng spawn khi di chuyển map (toast cập nhật mỗi N giây).
-  3. `[3] Dump Aim Target`: Dò tìm `APrimalDinoCharacter`, `APrimalCharacter`, `Dino_Character_BP_`.
-  4. `[4] Float Z & Teleport XYZ`: Tìm địa chỉ Z từ HUD và ghi toạ độ X, Y, Z trực tiếp vào RAM.
-  5. `[5] Patch Float Memory`: Ghi giá trị Float tùy chỉnh vào bất kỳ địa chỉ Hex nào.
-  6. `[6] Verify Address`: Đọc kiểm tra giá trị FLOAT & DWORD tại 1 địa chỉ RAM.
-  7. `[7] Target Filter`: Đặt bộ lọc tên (ví dụ: `Beach`, `Rex`, `Jungle`).
-  8. `[8] Export Session`: Lưu báo cáo chi tiết ra `/sdcard/ARK_Native_Dump.txt`.
+- **File nguồn ImGui**: [mod_menu_imgui.cpp](file:///c:/ark/mod_menu_imgui.cpp)
+- **File nguồn CLI**: [mod_menu_native.cpp](file:///c:/ark/mod_menu_native.cpp)
+- **Ưu điểm ImGui**: Không dính lỗi Java/AAPT, giao diện ImGui mượt mà 100%, không bị ảnh hưởng bởi Android Studio.
+- **Tính năng ImGui Menu (5 Tabs)**:
+  1. `[1] 📍 ImGui Tab 1`: Dump Spawn Zones (`DinoSpawnEntries_...`) kèm địa chỉ RAM Hex.
+  2. `[2] 🎯 ImGui Tab 2`: Quét Dino đang nhắm & Creatures (`APrimalDinoCharacter`, `BP_Dino_`).
+  3. `[3] ⚡ ImGui Tab 3`: Dò tìm Float Z và Teleport toạ độ X, Y, Z trong RAM.
+  4. `[4] 🌐 ImGui Tab 4`: Tự động đồng bộ cấu hình Online từ GitHub `https://raw.githubusercontent.com/Huyhub1/Mod-menu-/main/menu_config.json`.
+  5. `[5] 💾 ImGui Tab 5`: Xuất toàn bộ session quét ra `/sdcard/ARK_ImGui_Dump.txt`.
 
-#### Quy trình biên dịch và chạy:
-1. Biên dịch ở giao diện thường (`$`):
+#### Quy trình biên dịch và chạy ImGui Menu:
+1. Biên dịch trong Termux (giao diện thường `$`):
    ```bash
-   clang++ /sdcard/Download/mod_menu_native.cpp -o /data/local/tmp/modmenu
+   clang++ /sdcard/Download/mod_menu_imgui.cpp -o /data/local/tmp/imguimenu
    ```
-2. Chạy file bằng quyền Root (`#`):
+2. Chạy với quyền Root (`#`):
    ```bash
    su
-   chmod 755 /data/local/tmp/modmenu
-   /data/local/tmp/modmenu
+   chmod 755 /data/local/tmp/imguimenu
+   /data/local/tmp/imguimenu
    ```
 
 ---
