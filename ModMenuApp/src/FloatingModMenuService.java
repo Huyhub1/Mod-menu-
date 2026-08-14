@@ -29,6 +29,8 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -256,11 +258,11 @@ public class FloatingModMenuService extends Service {
         logScrollView.setLayoutParams(logLp);
 
         logTextView = new TextView(this);
-        logTextView.setText("> System Ready. Sẵn sàng thực thi lệnh!");
+        logTextView.setText("> System Ready. Sẵn sàng nạp và chạy Script GitHub!");
         logTextView.setTextColor(Color.parseColor("#4ADE80"));
         logTextView.setTextSize(10);
         logTextView.setTypeface(Typeface.MONOSPACE);
-        
+
         GradientDrawable logBg = new GradientDrawable();
         logBg.setColor(Color.parseColor("#020617"));
         logBg.setCornerRadius(12f);
@@ -347,7 +349,7 @@ public class FloatingModMenuService extends Service {
 
                 int code = conn.getResponseCode();
                 if (code == 200) {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
                     StringBuilder sb = new StringBuilder();
                     String line;
                     while ((line = br.readLine()) != null) {
@@ -483,7 +485,7 @@ public class FloatingModMenuService extends Service {
                             input.setTextColor(Color.WHITE);
                             input.setHintTextColor(Color.GRAY);
                             input.setTextSize(11);
-                            
+
                             GradientDrawable inputBg = new GradientDrawable();
                             inputBg.setColor(Color.parseColor("#0F172A"));
                             inputBg.setCornerRadius(10f);
@@ -548,11 +550,53 @@ public class FloatingModMenuService extends Service {
                     }
                 }
 
-                String cmdToRun = payload;
                 if (actionType.equals("run_url_script")) {
-                    String scriptUrl = inputVal.isEmpty() ? payload : inputVal;
-                    cmdToRun = "echo '[📥] Đang nạp Script từ GitHub: " + scriptUrl + "' && curl -s -m 8 '" + scriptUrl + "' | sh 2>&1";
-                } else if (actionType.equals("root_cmd_input")) {
+                    String scriptUrl = inputVal.trim().isEmpty() ? payload.trim() : inputVal.trim();
+                    mainHandler.post(() -> appendLog("[📥] Đang tải Script từ GitHub: " + scriptUrl));
+
+                    try {
+                        URL url = new URL(scriptUrl);
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        conn.setConnectTimeout(8000);
+                        conn.setReadTimeout(8000);
+                        conn.setRequestMethod("GET");
+
+                        int responseCode = conn.getResponseCode();
+                        if (responseCode == 200) {
+                            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                            StringBuilder scriptSb = new StringBuilder();
+                            String scriptLine;
+                            while ((scriptLine = br.readLine()) != null) {
+                                scriptSb.append(scriptLine).append("\n");
+                            }
+                            br.close();
+
+                            String scriptCode = scriptSb.toString().trim();
+                            if (scriptCode.isEmpty()) {
+                                mainHandler.post(() -> appendLog("[-] File Script trên GitHub trống!"));
+                                return;
+                            }
+
+                            // Write script to /data/local/tmp/run_test.sh
+                            File tmpScriptFile = new File("/data/local/tmp/run_test.sh");
+                            FileOutputStream fos = new FileOutputStream(tmpScriptFile);
+                            fos.write(scriptCode.getBytes("UTF-8"));
+                            fos.flush();
+                            fos.close();
+
+                            // Execute script via root
+                            runRootShellCommand("chmod 755 /data/local/tmp/run_test.sh && sh /data/local/tmp/run_test.sh 2>&1");
+                        } else {
+                            mainHandler.post(() -> appendLog("[-] Lỗi HTTP " + responseCode + " khi tải Script từ URL!"));
+                        }
+                    } catch (Exception e) {
+                        mainHandler.post(() -> appendLog("[-] Lỗi tải Script GitHub: " + e.getMessage()));
+                    }
+                    return;
+                }
+
+                String cmdToRun = payload;
+                if (actionType.equals("root_cmd_input")) {
                     cmdToRun = inputVal;
                 } else if (actionType.equals("teleport_z")) {
                     cmdToRun = "PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark); echo \"[TELEPORT Z] Ghi Z = " + inputVal + " vào RAM (PIDs: $PIDS)\"";
@@ -563,38 +607,46 @@ public class FloatingModMenuService extends Service {
                     return;
                 }
 
-                Process process = Runtime.getRuntime().exec("su");
-                DataOutputStream os = new DataOutputStream(process.getOutputStream());
-                BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                BufferedReader stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-
-                os.writeBytes(cmdToRun + "\n");
-                os.writeBytes("exit\n");
-                os.flush();
-
-                StringBuilder output = new StringBuilder();
-                String line;
-                while ((line = stdoutReader.readLine()) != null) {
-                    output.append(line).append("\n");
-                }
-                while ((line = stderrReader.readLine()) != null) {
-                    output.append("[ERR] ").append(line).append("\n");
-                }
-                process.waitFor();
-
-                String result = output.toString().trim();
-                mainHandler.post(() -> {
-                    if (!result.isEmpty()) {
-                        appendLog(result);
-                    } else {
-                        appendLog("[✔] Lệnh đã thực thi xong.");
-                    }
-                });
+                runRootShellCommand(cmdToRun);
 
             } catch (Exception e) {
                 mainHandler.post(() -> appendLog("[-] Lỗi Root Exec: " + e.getMessage()));
             }
         }).start();
+    }
+
+    private void runRootShellCommand(String cmdToRun) {
+        try {
+            Process process = Runtime.getRuntime().exec("su");
+            DataOutputStream os = new DataOutputStream(process.getOutputStream());
+            BufferedReader stdoutReader = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
+            BufferedReader stderrReader = new BufferedReader(new InputStreamReader(process.getErrorStream(), "UTF-8"));
+
+            os.writeBytes(cmdToRun + "\n");
+            os.writeBytes("exit\n");
+            os.flush();
+
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = stdoutReader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+            while ((line = stderrReader.readLine()) != null) {
+                output.append("[ERR] ").append(line).append("\n");
+            }
+            process.waitFor();
+
+            String result = output.toString().trim();
+            mainHandler.post(() -> {
+                if (!result.isEmpty()) {
+                    appendLog(result);
+                } else {
+                    appendLog("[✔] Lệnh đã thực thi xong.");
+                }
+            });
+        } catch (Exception e) {
+            mainHandler.post(() -> appendLog("[-] Lỗi Root Shell Execution: " + e.getMessage()));
+        }
     }
 
     private void appendLog(String text) {
