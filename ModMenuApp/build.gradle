@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.1'
+        classpath 'com.android.tools.build:gradle:7.4.2'
     }
 }
 
@@ -18,13 +18,12 @@ allprojects {
 apply plugin: 'com.android.application'
 
 android {
-    namespace 'com.gogs.ultimatedumper'
-    compileSdk 33
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "com.gogs.ultimatedumper"
-        minSdk 21
-        targetSdk 33
+        minSdkVersion 21
+        targetSdkVersion 33
         versionCode 1
         versionName "3.0"
     }
@@ -34,17 +33,16 @@ android {
             minifyEnabled false
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
             java.srcDirs = ['src']
         }
     }
-}
-
-dependencies {
 }
