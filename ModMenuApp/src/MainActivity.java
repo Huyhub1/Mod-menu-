@@ -2,6 +2,7 @@ package com.gogs.ultimatedumper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
@@ -25,6 +26,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = getSharedPreferences(FloatingModMenuService.PREF_NAME, MODE_PRIVATE);
+        String savedUrl = prefs.getString(FloatingModMenuService.PREF_KEY_URL, FloatingModMenuService.DEFAULT_CONFIG_URL);
 
         // Build Launcher Layout Programmatically
         ScrollView scrollView = new ScrollView(this);
@@ -62,7 +66,7 @@ public class MainActivity extends Activity {
         mainLayout.addView(urlLabel);
 
         urlEditText = new EditText(this);
-        urlEditText.setText("https://raw.githubusercontent.com/Huyhub1/Mod-menu-/main/menu_config.json");
+        urlEditText.setText(savedUrl);
         urlEditText.setTextColor(Color.WHITE);
         urlEditText.setHintTextColor(Color.GRAY);
         urlEditText.setTextSize(12);
@@ -95,10 +99,10 @@ public class MainActivity extends Activity {
 
         // Guide Instructions
         TextView guideTv = new TextView(this);
-        guideTv.setText("\n📌 HƯỚNG DẪN QUẢN TRỊ ONLINE:\n" +
-                "1. Bạn không cần biên dịch lại file APK này khi muốn thêm nút bấm mới.\n" +
-                "2. Chỉ cần chỉnh sửa file JSON trên Server (Vercel / GitHub / VPS).\n" +
-                "3. Bấm 'KÍCH HOẠT MENU NỔI' để hiển thị menu đè lên game ARK Mobile.");
+        guideTv.setText("\n📌 HƯỚNG DẪN QUẢN TRỊ ONLINE VĨNH VIỄN:\n" +
+                "1. Bạn KHÔNG CẦN biên dịch lại file APK này khi muốn thêm nút bấm mới.\n" +
+                "2. Chỉ cần chỉnh sửa file JSON trên Server (GitHub / Vercel / VPS).\n" +
+                "3. Bấm nút 'TẢI LẠI ONLINE' trên màn hình game để nạp nút bấm mới ngay!");
         guideTv.setTextColor(Color.parseColor("#CBD5E1"));
         guideTv.setTextSize(12);
         guideTv.setPadding(0, 20, 0, 20);
@@ -109,6 +113,12 @@ public class MainActivity extends Activity {
     }
 
     private void checkPermissionAndStart() {
+        String inputUrl = urlEditText.getText().toString().trim();
+        if (!inputUrl.isEmpty()) {
+            SharedPreferences prefs = getSharedPreferences(FloatingModMenuService.PREF_NAME, MODE_PRIVATE);
+            prefs.edit().putString(FloatingModMenuService.PREF_KEY_URL, inputUrl).apply();
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
             Toast.makeText(this, "Hãy cấp quyền Cửa sổ nổi (Overlay Permission) cho ứng dụng!", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
@@ -119,7 +129,11 @@ public class MainActivity extends Activity {
     }
 
     private void startFloatingService() {
+        String inputUrl = urlEditText.getText().toString().trim();
         Intent intent = new Intent(this, FloatingModMenuService.class);
+        if (!inputUrl.isEmpty()) {
+            intent.putExtra("SERVER_URL", inputUrl);
+        }
         startService(intent);
         statusTextView.setText("Trạng thái: MENU NỔI ĐANG CHẠY 🔥");
         Toast.makeText(this, "Đã kích hoạt Menu Nổi Online!", Toast.LENGTH_SHORT).show();

@@ -3,6 +3,7 @@ package com.gogs.ultimatedumper;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.GradientDrawable;
@@ -43,8 +44,9 @@ public class FloatingModMenuService extends Service {
     public native String nativeScanZones(String filter);
     public native String nativeTeleportZ(float targetZ, float newZ);
 
-    // Default Online Config URL (Pointed to user's GitHub repo)
-    private static final String DEFAULT_CONFIG_URL = "https://raw.githubusercontent.com/Huyhub1/Mod-menu-/main/menu_config.json";
+    public static final String DEFAULT_CONFIG_URL = "https://raw.githubusercontent.com/Huyhub1/Mod-menu-/main/menu_config.json";
+    public static final String PREF_NAME = "ARK_MOD_MENU_PREFS";
+    public static final String PREF_KEY_URL = "SERVER_CONFIG_URL";
 
     private WindowManager windowManager;
     private View expandedView;
@@ -63,10 +65,26 @@ public class FloatingModMenuService extends Service {
     private Handler mainHandler;
     private boolean isMinimized = false;
     private JSONObject currentConfigJson = null;
+    private String activeConfigUrl = DEFAULT_CONFIG_URL;
 
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && intent.hasExtra("SERVER_URL")) {
+            String customUrl = intent.getStringExtra("SERVER_URL");
+            if (customUrl != null && !customUrl.trim().isEmpty()) {
+                activeConfigUrl = customUrl.trim();
+            }
+        } else {
+            SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+            activeConfigUrl = prefs.getString(PREF_KEY_URL, DEFAULT_CONFIG_URL);
+        }
+        fetchOnlineConfig(activeConfigUrl);
+        return START_STICKY;
     }
 
     @Override
@@ -75,11 +93,13 @@ public class FloatingModMenuService extends Service {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mainHandler = new Handler(Looper.getMainLooper());
 
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        activeConfigUrl = prefs.getString(PREF_KEY_URL, DEFAULT_CONFIG_URL);
+
         createMinimizedBadge();
         createExpandedMenu();
 
-        // Tự động nạp cấu hình Online ngay khi vừa bật ứng dụng
-        fetchOnlineConfig(DEFAULT_CONFIG_URL);
+        fetchOnlineConfig(activeConfigUrl);
     }
 
     // ================================================================
@@ -87,14 +107,14 @@ public class FloatingModMenuService extends Service {
     // ================================================================
     private void createMinimizedBadge() {
         Button badgeBtn = new Button(this);
-        badgeBtn.setText("ARK\nIMGUI");
+        badgeBtn.setText("ARK\nMOD");
         badgeBtn.setTextColor(Color.WHITE);
         badgeBtn.setTextSize(11);
 
         GradientDrawable shape = new GradientDrawable();
         shape.setShape(GradientDrawable.OVAL);
         shape.setColor(Color.parseColor("#1976D2"));
-        shape.setStroke(4, Color.parseColor("#42A5F5"));
+        shape.setStroke(4, Color.parseColor("#60A5FA"));
         badgeBtn.setBackground(shape);
 
         int layoutType = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
@@ -147,7 +167,7 @@ public class FloatingModMenuService extends Service {
         containerLayout.setOrientation(LinearLayout.VERTICAL);
 
         GradientDrawable bg = new GradientDrawable();
-        bg.setColor(Color.parseColor("#D9101827")); // Deep dark glassmorphism (Translucent)
+        bg.setColor(Color.parseColor("#EA0F172A")); // Deep dark glassmorphism (Translucent)
         bg.setCornerRadius(24f);
         bg.setStroke(3, Color.parseColor("#3B82F6"));
         containerLayout.setBackground(bg);
@@ -155,7 +175,7 @@ public class FloatingModMenuService extends Service {
 
         // Header Title
         titleTextView = new TextView(this);
-        titleTextView.setText("ARK Ultimate Dear ImGui Menu v3.0");
+        titleTextView.setText("ARK Ultimate Online Menu v3.0");
         titleTextView.setTextColor(Color.parseColor("#60A5FA"));
         titleTextView.setTextSize(15);
         titleTextView.setGravity(Gravity.CENTER);
@@ -164,7 +184,7 @@ public class FloatingModMenuService extends Service {
 
         // Notice Ticker Banner
         noticeTextView = new TextView(this);
-        noticeTextView.setText("⚡ Đang kết nối ImGui Server Online...");
+        noticeTextView.setText("⚡ Đang kết nối Server Online...");
         noticeTextView.setTextColor(Color.parseColor("#FBBF24"));
         noticeTextView.setTextSize(11);
         noticeTextView.setGravity(Gravity.CENTER);
@@ -177,7 +197,7 @@ public class FloatingModMenuService extends Service {
 
         Button btnSync = createStyledButton("🔄 Tải Lại Online", "#059669");
         btnSync.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        btnSync.setOnClickListener(v -> fetchOnlineConfig(DEFAULT_CONFIG_URL));
+        btnSync.setOnClickListener(v -> fetchOnlineConfig(activeConfigUrl));
         topBar.addView(btnSync);
 
         Button btnMin = createStyledButton("➖ Thu Nhỏ", "#DC2626");
@@ -215,7 +235,7 @@ public class FloatingModMenuService extends Service {
         logScrollView.setLayoutParams(logLp);
 
         logTextView = new TextView(this);
-        logTextView.setText("Console Log Output Ready...\nSẵn sàng thực thi ImGui C++ Engine từ Server Online!");
+        logTextView.setText("Console Log Output Ready...\nSẵn sàng thực thi lệnh từ Server Online!");
         logTextView.setTextColor(Color.parseColor("#34D399"));
         logTextView.setTextSize(11);
         logTextView.setBackgroundColor(Color.parseColor("#0F172A"));
@@ -228,7 +248,7 @@ public class FloatingModMenuService extends Service {
                 : WindowManager.LayoutParams.TYPE_PHONE;
 
         expandedParams = new WindowManager.LayoutParams(
-                700, WindowManager.LayoutParams.WRAP_CONTENT,
+                720, WindowManager.LayoutParams.WRAP_CONTENT,
                 layoutType,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
@@ -289,13 +309,13 @@ public class FloatingModMenuService extends Service {
     // FETCH ONLINE CONFIG FROM SERVER (HTTP JSON)
     // ================================================================
     private void fetchOnlineConfig(String urlStr) {
-        appendLog("[+] Đang tải cấu hình ImGui từ Server Online...");
+        appendLog("[+] Đang tải cấu hình menu từ Server Online...");
         new Thread(() -> {
             try {
                 URL url = new URL(urlStr);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
+                conn.setConnectTimeout(6000);
+                conn.setReadTimeout(6000);
                 conn.setRequestMethod("GET");
 
                 int code = conn.getResponseCode();
@@ -329,14 +349,20 @@ public class FloatingModMenuService extends Service {
     private void loadFallbackConfig() {
         try {
             String defaultJsonStr = "{\n" +
-                    "  \"menu_title\": \"ARK Ultimate ImGui Menu\",\n" +
-                    "  \"announcement\": \"⚡ ImGui Native Engine v3.0 Active!\",\n" +
+                    "  \"menu_title\": \"ARK Ultimate Cloud Menu (Offline)\",\n" +
+                    "  \"announcement\": \"⚠️ Chế độ Offline. Nhấn 'Tải Lại Online' để kết nối Server!\",\n" +
                     "  \"categories\": [\n" +
                     "    {\n" +
                     "      \"cat_name\": \"📍 Dump Zone\",\n" +
                     "      \"items\": [\n" +
                     "        {\"label\": \"Quét Zone Spawn (Native C++)\", \"action_type\": \"native_scan_zones\", \"payload\": \"\"},\n" +
-                    "        {\"label\": \"Quét Chuỗi RAM DinoSpawnEntries_\", \"action_type\": \"root_cmd\", \"payload\": \"PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \\\"$PID\\\" ]; then grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem | sort -u 2>&1; else echo '[-] Chưa tìm thấy PID game!'; fi\"}\n" +
+                    "        {\"label\": \"Quét Chuỗi RAM DinoSpawnEntries_\", \"action_type\": \"root_cmd\", \"payload\": \"PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \\\"$PIDS\\\" ]; then for PID in $PIDS; do echo \\\"[+] Đang quét RAM PID: $PID...\\\"; grep -a -o 'DinoSpawnEntries_[A-Za-z0-9_]*' /proc/$PID/mem 2>/dev/null | sort -u; done; else echo '[-] Không tìm thấy PID game!'; fi\"}\n" +
+                    "      ]\n" +
+                    "    },\n" +
+                    "    {\n" +
+                    "      \"cat_name\": \"🎯 Aim & Target\",\n" +
+                    "      \"items\": [\n" +
+                    "        {\"label\": \"Quét APrimalDinoCharacter\", \"action_type\": \"root_cmd\", \"payload\": \"PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark || pgrep -f wildcard); if [ -n \\\"$PIDS\\\" ]; then for PID in $PIDS; do grep -a -o 'APrimalDinoCharacter_[A-Za-z0-9_]*' /proc/$PID/mem 2>/dev/null | head -n 15; done; else echo '[-] Không tìm thấy PID game!'; fi\"}\n" +
                     "      ]\n" +
                     "    }\n" +
                     "  ]\n" +
@@ -351,7 +377,7 @@ public class FloatingModMenuService extends Service {
     private void renderDynamicMenu(JSONObject json, boolean isOnline) {
         currentConfigJson = json;
         try {
-            String title = json.optString("menu_title", "ARK ImGui Menu");
+            String title = json.optString("menu_title", "ARK Cloud Menu");
             String notice = json.optString("announcement", "Server Connected!");
             titleTextView.setText(title);
             noticeTextView.setText(notice);
@@ -455,7 +481,7 @@ public class FloatingModMenuService extends Service {
     // EXECUTION ENGINE FOR ROOT SHELL / NATIVE C++ IMGUI COMMANDS
     // ================================================================
     private void executeMenuAction(String actionType, String payload, String inputVal) {
-        appendLog("[⚡] Thực thi ImGui: " + actionType + " | Input: " + inputVal);
+        appendLog("[⚡] Thực thi: " + actionType + " | Input: " + inputVal);
 
         new Thread(() -> {
             try {
@@ -465,7 +491,7 @@ public class FloatingModMenuService extends Service {
                         mainHandler.post(() -> appendLog(nativeRes));
                         return;
                     } catch (Throwable t) {
-                        appendLog("[-] Lỗi Native: " + t.getMessage() + ". Đang fallback sang Root Shell...");
+                        appendLog("[-] Lỗi Native: " + t.getMessage() + ". Đang chuyển sang Root Shell...");
                     }
                 } else if (actionType.equals("native_teleport_z")) {
                     try {
@@ -482,7 +508,7 @@ public class FloatingModMenuService extends Service {
                 if (actionType.equals("root_cmd_input")) {
                     cmdToRun = inputVal;
                 } else if (actionType.equals("teleport_z")) {
-                    cmdToRun = "PID=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark); echo \"[TELEPORT Z] Ghi Z = " + inputVal + " vào RAM (PID: $PID)\"";
+                    cmdToRun = "PIDS=$(pidof com.studiowildcard.wardrumstudios.ark || pgrep -f ark); echo \"[TELEPORT Z] Ghi Z = " + inputVal + " vào RAM (PIDs: $PIDS)\"";
                 }
 
                 if (cmdToRun == null || cmdToRun.isEmpty()) {
@@ -528,7 +554,7 @@ public class FloatingModMenuService extends Service {
         if (logTextView != null) {
             String current = logTextView.getText().toString();
             String updated = text + "\n---\n" + current;
-            if (updated.length() > 3500) updated = updated.substring(0, 3500);
+            if (updated.length() > 4000) updated = updated.substring(0, 4000);
             logTextView.setText(updated);
             logScrollView.post(() -> logScrollView.fullScroll(ScrollView.FOCUS_UP));
         }
