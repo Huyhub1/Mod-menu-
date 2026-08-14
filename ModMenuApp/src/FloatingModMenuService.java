@@ -29,8 +29,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -577,15 +575,8 @@ public class FloatingModMenuService extends Service {
                                 return;
                             }
 
-                            // Write script to /data/local/tmp/run_test.sh
-                            File tmpScriptFile = new File("/data/local/tmp/run_test.sh");
-                            FileOutputStream fos = new FileOutputStream(tmpScriptFile);
-                            fos.write(scriptCode.getBytes("UTF-8"));
-                            fos.flush();
-                            fos.close();
-
-                            // Execute script via root
-                            runRootShellCommand("chmod 755 /data/local/tmp/run_test.sh && sh /data/local/tmp/run_test.sh 2>&1");
+                            // Pipe script content directly into su root shell stdin
+                            runRootShellCommand(scriptCode);
                         } else {
                             mainHandler.post(() -> appendLog("[-] Lỗi HTTP " + responseCode + " khi tải Script từ URL!"));
                         }
